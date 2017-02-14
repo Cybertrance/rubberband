@@ -5,6 +5,14 @@ html , body{
  
 }
 
+.index_site_title{
+    
+    background-image: url("../../resources/index_title.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-top: 4%;
+}
+
 .green_border{
 	border-top: 5px solid #43d592;
 }
@@ -859,7 +867,6 @@ a:focus {
     line-height: 59px;
     display: block;
     height: 55px;
-    margin: 0;
     padding-left: 10px
 }
 .site_title:hover,
