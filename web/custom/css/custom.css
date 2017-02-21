@@ -318,7 +318,7 @@ html , body{
     padding: 4px
 }
 .profile_info {
-    padding: 25px 10px 10px;
+    padding: 14px 10px 10px;
     width: 65%;
     float: left
 }
@@ -3594,8 +3594,8 @@ form:after {
     color: #777;
     margin: 0 0 20px;
     width: 100%;
-	transition: border-radius 1s;
-	-webkit-trasition: border-radius 1s;
+	transition: border-radius .2s;
+	-webkit-trasition: border-radius .2s;
 	
 }
 .login_content form input[type="text"]:focus,

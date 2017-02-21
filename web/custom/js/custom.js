@@ -2411,6 +2411,7 @@ if (typeof NProgress != 'undefined') {
 					y = date.getFullYear(),
 					started,
 					categoryClass;
+                                
 
 				var calendar = $('#calendar').fullCalendar({
 				  header: {
@@ -2421,6 +2422,8 @@ if (typeof NProgress != 'undefined') {
 				  selectable: true,
 				  selectHelper: true,
 				  select: function(start, end, allDay) {
+                                      var start = $('#calendar').fullCalendar('getDate');
+                                      $('#start').val(start);
 					$('#fc_create').click();
 
 					started = start;
@@ -2428,6 +2431,9 @@ if (typeof NProgress != 'undefined') {
 
 					$(".antosubmit").on("click", function() {
 					  var title = $("#title").val();
+                                          starte = $("#start").val();
+                                          ende = $("#end").val;
+                                          var check=$("#allday").val();
 					  if (end) {
 						ended = end;
 					  }
@@ -2437,9 +2443,9 @@ if (typeof NProgress != 'undefined') {
 					  if (title) {
 						calendar.fullCalendar('renderEvent', {
 							title: title,
-							start: started,
-							end: end,
-							allDay: allDay
+							start: starte,
+							end: ende,
+							//allDay: allDay
 						  },
 						  true // make the event "stick"
 						);
