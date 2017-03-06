@@ -175,7 +175,7 @@
                     </ul>
                     <div class="clearfix"></div>
                   </div>
-                  <div class="x_content style="height: 100%; width: 100%">
+                  <div class="x_content" style="height: 100%; width: 100%;">
 
                     <div id='calendar'></div>
 
@@ -222,16 +222,30 @@
                     <textarea class="form-control" style="height:55px;" id="descr" name="descr"></textarea>
                   </div>
                 </div>
-                <div class="form-group">
-                  <label class="col-sm-3 control-label">Start Time</label>
-                  <div class="col-sm-9">
-                    <input type="datetime-local" class="form-control" id="start" name="start">
+                  <div class="form-group">
+                  <label class="col-sm-3 pull-left control-label">Event Start</label>
+                  </div>
+                <div class="form-group">                    
+                  <label class="col-sm-3 control-label">Date</label>
+                  <div class="col-sm-5">
+                    <input type="date" class="form-control" id="start-date" name="start">
+                  </div>
+                  <label class="col-sm-1 control-label">Time</label>
+                  <div class="col-sm-3">
+                    <input type="time" class="form-control" id="start-time" name="start">
                   </div>
                 </div>
                 <div class="form-group">
-                  <label class="col-sm-3 control-label">End Time</label>
-                  <div class="col-sm-9">
-                    <input type="datetime-local" class="form-control" id="end" name="end">
+                  <label class="col-sm-3 pull-left control-label">Event End</label>
+                  </div>
+                <div class="form-group">                    
+                  <label class="col-sm-3 control-label">Date</label>
+                  <div class="col-sm-5">
+                    <input type="date" class="form-control" id="end-date" name="start">
+                  </div>
+                  <label class="col-sm-1 control-label">Time</label>
+                  <div class="col-sm-3">
+                    <input type="time" class="form-control" id="end-time" name="start">
                   </div>
                 </div>
                   <div class="form-group">
