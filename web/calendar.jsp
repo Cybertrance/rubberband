@@ -1,3 +1,47 @@
+
+<%@page 
+    contentType="text/html" 
+    pageEncoding="UTF-8" 
+    import="javax.json.*,
+    java.sql.*,
+    java.util.*"
+%>
+<%    
+    int lastId=-1;
+    int newEvId;
+    Connection con=null;
+    Statement stmt=null;
+    ResultSet rs=null;
+    PreparedStatement ps=null;   
+    try{
+        Class.forName("com.mysql.jdbc.Driver");  
+        con=DriverManager.getConnection("jdbc:mysql://localhost:3306/rubberband","root","");        
+        
+        // Get Last Event ID//
+        stmt=con.createStatement();
+        rs=stmt.executeQuery("SELECT MAX(ev_id) FROM Events");
+        lastId=rs.getInt(1);
+        
+        
+        
+    }
+    catch(SQLException se){
+        System.out.println(se.getMessage());
+    }
+    
+    //Test DB Connection//
+    if(con==null){
+        System.out.println("No Database Connection");
+    }
+    //Set new EventID//
+    if(lastId==-1){
+        newEvId=1;
+    }
+    else{
+        newEvId=lastId+1;
+    }
+    
+%>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -20,6 +64,11 @@
     <link href="vendors/fullcalendar/dist/fullcalendar.print.css" rel="stylesheet" media="print">
     <!-- iCheck -->
     <link href="vendors/iCheck/skins/flat/green.css" rel="stylesheet">
+    <!-- PNotify -->
+    <link href="vendors/pnotify/dist/pnotify.css" rel="stylesheet">
+    <link href="vendors/pnotify/dist/pnotify.buttons.css" rel="stylesheet">
+    <link href="vendors/pnotify/dist/pnotify.nonblock.css" rel="stylesheet">
+    <link href="vendors/pnotify/dist/pnotify.buttons.css" rel="stylesheet">
 
     <!-- Custom styling plus plugins -->
     <link href="custom/css/custom.css" rel="stylesheet">
@@ -28,109 +77,8 @@
   <body class="nav-md">
     <div class="container body">
       <div class="main_container">
-        <div class="col-md-3 left_col">
-          <div class="left_col scroll-view">
-            <div class="navbar nav_title" style="border: 0;">
-              <a href="index.html" class="site_title index_site_title"></a>
-            </div>
-
-            <div class="clearfix"></div>
-
-            <!-- menu profile quick info -->
-            <div class="profile clearfix">
-              <div class="profile_pic">
-                <img src="resources/temp_user.jpg" alt="..." class="img-circle profile_img">
-              </div>
-              <div class="profile_info">
-                <span>Welcome,</span>
-                <h2>Daniel Misquitta</h2>
-              </div>
-            </div>
-            <!-- /menu profile quick info -->
-
-            <br />
-
-            <!-- sidebar menu -->
-            <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
-              <div class="menu_section">
-                <h3>Analytics and Status</h3>
-                <ul class="nav side-menu">
-                  <li><a><i class="fa fa-bar-chart-o"></i> Projects <span class="fa fa-chevron-down"></span></a>
-                    <ul class="nav child_menu">
-                      <li><a href="index.html">Overview</a></li>
-                      <li><a href="projects.html">Live Projects</a></li>
-                      <li><a href="projects2.html">Unapproved Projects</a></li>
-                    </ul>
-                  </li>
-                </ul>
-              </div>
-              
-                <div class="menu_section">
-                    <h3>Utilities</h3>
-                    <ul class="nav side-menu">
-                        <li><a><i class="fa fa-group"></i> Team <span class="fa fa-chevron-down"></span></a>
-                            <ul class="nav child_menu">
-                              <li><a href="calendar.html">Calendar</a></li>
-                            </ul>
-                        </li>
-                    </ul>
-                    
-                </div>
-              
-            </div>
-            <!-- /sidebar menu -->
-
-            <!-- /menu footer buttons -->
-            <div class="sidebar-footer hidden-small">
-              <a data-toggle="tooltip" data-placement="top" title="Settings">
-                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>
-              </a>
-              <a data-toggle="tooltip" data-placement="top" title="FullScreen">
-                <span class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
-              </a>
-              <a data-toggle="tooltip" data-placement="top" title="Lock">
-                <span class="glyphicon glyphicon-eye-close" aria-hidden="true"></span>
-              </a>
-              <a data-toggle="tooltip" data-placement="top" title="Logout" href="login.html">
-                <span class="glyphicon glyphicon-off" aria-hidden="true"></span>
-              </a>
-            </div>
-            <!-- /menu footer buttons -->
-          </div>
-        </div>
-
-        <!-- top navigation -->
-        <div class="top_nav">
-          <div class="nav_menu">
-            <nav>
-              <div class="nav toggle">
-                <a id="menu_toggle"><i class="fa fa-bars"></i></a>
-              </div>
-
-              <ul class="nav navbar-nav navbar-right">
-                <li class="">
-                  <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                    <img src="resources/temp_user.jpg" alt="">Swag Admin
-                    <span class=" fa fa-angle-down"></span>
-                  </a>
-                  <ul class="dropdown-menu dropdown-usermenu pull-right">
-                    <li><a href="javascript:;"> Profile</a></li>
-                    <li>
-                      <a href="javascript:;">
-                        <span class="badge bg-red pull-right">50%</span>
-                        <span>Settings</span>
-                      </a>
-                    </li>
-                    <li><a href="javascript:;">Help</a></li>
-                    <li><a href="login.html"><i class="fa fa-sign-out pull-right"></i> Log Out</a></li>
-                  </ul>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </div>
-        <!-- /top navigation -->
-
+          <jsp:include page="sidebar.jsp"></jsp:include>
+           
         <!-- page content -->
         <div class="right_col" role="main">
           <div class="">
@@ -209,7 +157,7 @@
           </div>
           <div class="modal-body">
             <div id="testmodal" style="padding: 5px 20px;">
-                <form id="antoform" class="form-horizontal calender" role="form" novalidate>
+                <form id="antoform" class="form-horizontal calender" role="form" action="calendar.jsp" novalidate>
                 <div class="form-group">
                   <label class="col-sm-3 control-label">Title</label>
                   <div class="col-sm-9">
@@ -219,7 +167,7 @@
                 <div class="form-group">
                   <label class="col-sm-3 control-label">Description</label>
                   <div class="col-sm-9">
-                    <textarea class="form-control" style="height:55px;" id="descr" name="descr"></textarea>
+                    <textarea class="form-control" style="height:55px;" id="desc" name="descr"></textarea>
                   </div>
                 </div>
                   <div class="form-group">
@@ -255,9 +203,33 @@
                               <input type="checkbox" class="flat">
                           </div>
                   </div>
-                </div>
+                  </div>                
+                    <input id="newEvId" type="text" hidden value="<%=newEvId%>">
                     <div class="modal-footer">            
             <button type="button" class="btn btn-success calsubmit">Save changes</button>
+            <%
+            //System.out.println(request.getParameter("id")+request.getParameter("title")+request.getParameter("desc")+request.getParameter("start")+request.getParameter("end")+request.getParameter("allDay"));
+            //NEW Event Entry
+            if(request.getParameter("operation")!=null){
+                if(request.getParameter("operation").equals("0")){
+                try{
+                ps=con.prepareStatement("INSERT INTO Events(ev_title,ev_start,ev_end,allDay,ev_desc) VALUES (?,?,?,?,?)");
+                //ps.setInt(1, Integer.parseInt(request.getParameter("id")));
+                ps.setString(1,request.getParameter("title"));
+                ps.setString(2,request.getParameter("start"));
+                ps.setString(3,request.getParameter("end"));
+                ps.setBoolean(4,Boolean.parseBoolean(request.getParameter("start")));
+                ps.setString(5,request.getParameter("desc"));
+
+                ps.execute();
+                }
+
+                catch(SQLException se){
+                    System.out.println("SQL ERROR!!! : "+se);
+                }
+                }
+            }            
+            %>
           </div>
               </form>
             </div>
@@ -327,7 +299,45 @@
                 </div>
                     <div class="modal-footer">
             <button type="button" class="btn btn-danger e_caldelete" data-dismiss="modal"><i class="fa fa-trash"></i>&nbsp;Delete Event</button>
+            <%
+            if(request.getParameter("operation")!=null){
+                    //DELETE Event Entry
+                if(request.getParameter("operation").equals("2")){
+                try{                    
+                ps=con.prepareStatement("UPDATE Events SET isDelete=true WHERE ev_id=?");
+                ps.setInt(1, Integer.parseInt(request.getParameter("id")));                        
+                ps.execute();
+                }
+
+                catch(SQLException se){
+                    System.out.println("SQL ERROR!!! : "+se);
+                }
+                }
+            }            
+            %>
             <button type="button" class="btn btn-success e_calsubmit">Save changes</button>
+            <%
+            if(request.getParameter("operation")!=null){
+                if(request.getParameter("operation").equals("1")){
+                try{
+                ps=con.prepareStatement("UPDATE Events SET ev_title=?, ev_start=?, ev_end=?, allDay=?, ev_desc=? WHERE ev_id=?");
+                //ps.setInt(1, Integer.parseInt(request.getParameter("id")));
+                ps.setString(1,request.getParameter("title"));
+                ps.setString(2,request.getParameter("start"));
+                ps.setString(3,request.getParameter("end"));
+                ps.setBoolean(4,Boolean.parseBoolean(request.getParameter("allDay")));
+                ps.setString(5,request.getParameter("desc"));
+                ps.setInt(6, Integer.parseInt(request.getParameter("id")));
+
+                ps.execute();
+                }
+
+                catch(SQLException se){
+                    System.out.println("SQL ERROR!!! : "+se);
+                }
+                }
+            }   
+            %>            
           </div>
               </form>
             </div>
@@ -340,7 +350,9 @@
     <div id="fc_create" data-toggle="modal" data-target="#CalenderModalNew"></div>
     <div id="fc_edit" data-toggle="modal" data-target="#CalenderModalEdit"></div>
     <!-- /calendar modal -->
-        
+        <%
+        con.close();
+        %>
     <!-- jQuery -->
     <script src="vendors/jquery/dist/jquery.min.js"></script>
     <!-- Bootstrap -->
@@ -356,6 +368,11 @@
     <script src="vendors/iCheck/icheck.min.js"></script>
     <!-- validator -->
     <script src="vendors/validator/validator.js"></script>
+    <!-- PNotify -->
+    <script src="vendors/pnotify/dist/pnotify.js"></script>
+    <script src="vendors/pnotify/dist/pnotify.buttons.js"></script>
+    <script src="vendors/pnotify/dist/pnotify.nonblock.js"></script>
+    <script src="vendors/pnotify/dist/pnotify.confirm.js"></script>
 
     <!-- Custom Theme Scripts -->
     <script src="custom/js/custom.js"></script>

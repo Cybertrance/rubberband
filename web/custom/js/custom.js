@@ -50,7 +50,132 @@ var CURRENT_URL = window.location.href.split('#')[0].split('?')[0],
     $FOOTER = $('footer');
 
 	
-	
+        
+//Add Employee
+$(document).ready(function(){
+    $("#empSubmit").on("click",function(){
+       
+       var name=$("#e-name").val();
+       var contact=$("#e-email").val();
+       var password=$("#e-password").val();
+       alert(name+contact+password);
+       var request = $.ajax
+                                                    ({
+                                                     url: "employee.jsp",
+                                                     type: "post",
+                                                     data:  {name: name, contact: contact, password: password},
+                                                    success:    function() {
+                                                         new PNotify({
+                                                            title: 'Success!',
+                                                            text: name+' added',
+                                                            type: 'success',
+                                                            styling: 'bootstrap3'
+                                                        });
+                                                        $("#e-name").val("");
+                                                        $("#e-email").val("");
+                                                        $("#e-password").val("");
+                                                    },
+                                                      error:function (xhr, ajaxOptions, thrownError){
+                                                     new PNotify({
+                                                        title: 'Error!',
+                                                        text: xhr.status+"\n"+thrownError+" ",
+                                                        type: 'error',
+                                                        styling: 'bootstrap3'
+                                                    });
+                                                    }  
+                                                    });
+    });
+    
+});
+
+
+//Custom PNotify
+function customPN(title,text,type){       
+        new PNotify({
+                                                            title: title,
+                                                            text: text,
+                                                            type: type,
+                                                            styling: 'bootstrap3'
+                                                        });
+    };
+    
+//Unapproved Projects
+
+$('document').ready(function(){
+    $(".approve-btn").on('click',function(){
+        var pid=$(this).closest('tr').prop('id');
+        $('#p_modal').click();                
+        $('#team-lead-save').on('click',function(){
+            var tl=$('#sel-team-lead').val();
+            if(tl==='Choose Member'){
+                alert("Choose a Team Leader");
+            }
+            else{
+                $.ajax({
+                    url:'projects2.jsp',
+                    data:{'project-id':pid,'team-leader':tl,'operation':1}           
+                 });
+                 $('.close').click();                 
+            }            
+        });        
+    });
+    $('#project_modal').on('hidden.bs.modal', function () {
+        window.location.reload(true);
+        });
+    $(".discard-btn").on('click',function(){
+        var pid=$(this).closest('tr').prop('id');
+        $.ajax({
+            url:'projects2.jsp',
+            data:{'project-id':pid,'operation':2}
+        });
+        location.reload();
+    });
+});
+
+//Projects
+$('document').ready(function(){
+    $('.btn-view').on('click',function(){
+        var pid=$(this).closest('tr').prop('id');
+        $.ajax({
+            url:'projects.jsp',
+            data:{'project-id':pid,'operation':1}
+        });
+    });
+    $('.btn-delete').on('click',function(){
+        var pid=$(this).closest('tr').prop('id');
+        (new PNotify({
+                                                title: 'Confirmation Needed',
+                                                text: 'Are you sure?',
+                                                icon: 'glyphicon glyphicon-question-sign',
+                                                hide: false,
+                                                styling:'bootstrap3',
+                                                confirm: {
+                                                    confirm: true
+                                                },
+                                                buttons: {
+                                                    closer: false,
+                                                    sticker: false
+                                                },
+                                                history: {
+                                                    history: false
+                                                },
+                                                addclass: 'stack-modal',
+                                                stack: {
+                                                    'dir1': 'down',
+                                                    'dir2': 'right',
+                                                    
+                                                }
+                                            })).get().on('pnotify.confirm', function() {
+                                                $.ajax({
+                                                    url:'projects.jsp',
+                                                    data:{'project-id':pid,'operation':0}
+                                                });
+                                                location.reload();
+                                            }).on('pnotify.cancel', function() {                                                
+                                            });           
+    });    
+});
+
 // Sidebar
 function init_sidebar() {
 // TODO: This is some kind of easy fix, maybe we can improve this
@@ -1840,7 +1965,7 @@ if (typeof NProgress != 'undefined') {
 			if( typeof (PNotify) === 'undefined'){ return; }
 			console.log('init_PNotify');
 			
-			new PNotify({
+			/*new PNotify({
 			  title: "PNotify",
 			  type: "info",
 			  text: "Welcome. Try hovering over me. You can click things behind me, because I'm non-blocking.",
@@ -1860,7 +1985,7 @@ if (typeof NProgress != 'undefined') {
 
 				return false;
 			  }
-			});
+			});*/
 
 		}; 
 	   
@@ -2401,17 +2526,10 @@ if (typeof NProgress != 'undefined') {
 	   	/* CALENDAR */
 		  
 		    function  init_calendar() {
+                        
 					
 				if( typeof ($.fn.fullCalendar) === 'undefined'){ return; }
-				console.log('init_calendar');
-					
-				var date = new Date(),
-					d = date.getDate(),
-					m = date.getMonth(),
-					y = date.getFullYear(),
-					started,
-					categoryClass;
-                                
+				console.log('init_calendar');									                                
 
 				var calendar = $('#calendar').fullCalendar({
 				  header: {
@@ -2420,71 +2538,270 @@ if (typeof NProgress != 'undefined') {
 					right: 'month,agendaWeek,agendaDay,listMonth'
 				  },
 				  selectable: true,
-				  selectHelper: true,
-				  /*select: function(start, end, allDay) {
-                                      var start = $('#calendar').fullCalendar('getDate');
-                                      //$('#start').val(start);
-					$('#fc_create').click();
-
-					started = start;
-					ended = end;
-
-					$(".antosubmit").on("click", function() {
-					  var title = $("#title").val();
-                                          starte = $("#start").val();
-                                          ende = $("#end").val;
-                                          var check=$("#allday").val();
-					  if (end) {
-						ended = end;
-					  }
-
-					  categoryClass = $("#event_type").val();
-
-					  if (title) {
-						calendar.fullCalendar('renderEvent', {
-							title: title,
-							start: starte,
-							end: ende
-							//allDay: allDay
-						  },
-						  true // make the event "stick"
-						);
-					  }
-
-					  $('#title').val('');
-
-					  calendar.fullCalendar('unselect');
-
-					  $('.antoclose').click();
-
-					  return false;
-					});
-				  },*/
-                                  select: function(ddate,jsEvent,view){                                                                           
-                                      var dayDate=ddate.toISOString();
-                                      //alert(dayDate);
-                                      $('#start').val(dayDate);
-                                      $('#end').val(dayDate);
+				  selectHelper: true,                                  
+				  eventSources: [
+                                        'calevent_source.jsp'
+                                    ],                                      
+                                    
+                                  select: function(start_moment,end_moment,view){
+                                      
+                                      var isAllDay=false;
+                                      
                                       $('#fc_create').click();
+                                      $('#title').val("");
+                                      $('#desc').val(" ");
+                                      $('#start-date').val(start_moment.format("YYYY-MM-DD"));                                     
+                                      $('#start-time').val(start_moment.format("hh:mm:ss"));
+                                      $('#end-date').val(end_moment.format("YYYY-MM-DD"));
+                                      $('#end-time').val(end_moment.format("hh:mm:ss"));                                      
+                                      $('#is-all-day').on('ifChecked',function(){
+                                        isAllDay=true;
+                                        $('#start-time').val("");
+                                        $('#end-time').val("");
+                                        $('#start-time').attr('disabled','disabled');
+                                        $('#end-time').attr('disabled','disabled');
+                                      });
+                                      $('#is-all-day').on('ifUnchecked',function(){
+                                          isAllDay=false;
+                                          $('#start-time').val(start_moment.format("hh:mm:ss"));
+                                            $('#end-time').val(start_moment.format("hh:mm:ss"));
+                                            $('#start-time').removeAttr('disabled','disabled');
+                                            $('#end-time').removeAttr('disabled','disabled');
+                                      });
+                                      $(".calsubmit").on("click",function(){
+                                          var title=$('#title').val();                                          
+                                          var ev_start=moment($('#start-date').val()+" "+$('#start-time').val());
+                                          var ev_end=moment($('#end-date').val()+" "+$('#end-time').val());
+                                          var ev_desc=$("#desc").val();
+                                          var newEvId=$('#newEvId').val();                                          
+                                          
+                                          if(title){
+                                              if(isAllDay){
+                                                  calendar.fullCalendar('renderEvent',{
+                                                  id: newEvId,
+                                                  title: title,
+                                                  start: ev_start,
+                                                  end: ev_end,
+                                                  allDay: true
+                                              },
+                                              true
+                                            );
+                                            var request = $.ajax
+                                                    ({
+                                                     url: "calendar.jsp",
+                                                     type: "post",
+                                                     data:  {id: newEvId, title: title, desc: ev_desc, start: ev_start.format(),end: ev_end.format(),allDay: true,operation: "0"},
+                                                    success:    function() {
+                                                         new PNotify({
+                                                            title: 'Event Created',
+                                                            text: calEvent.title+' event sucessfully created!',
+                                                            type: 'success',
+                                                            styling: 'bootstrap3'
+                                                        });
+                                                    },
+                                                      error:function (xhr, ajaxOptions, thrownError){
+                                                     new PNotify({
+                                                        title: 'Create Event Failed',
+                                                        text: xhr.status+"\n"+thrownError+" ",
+                                                        type: 'error',
+                                                        styling: 'bootstrap3'
+                                                    });
+                                                    }  
+                                                    });
+                                                  $('#title').val("");
+                                              }
+                                              else{
+                                                  calendar.fullCalendar('renderEvent',{
+                                                  id: newEvId,
+                                                  title: title,
+                                                  start: ev_start,
+                                                  end: ev_end,
+                                                  allDay: false
+                                              },
+                                              true
+                                            );
+                                                var request= $.ajax
+                                                    ({
+                                                     url: "calendar.jsp",
+                                                     type: "post",
+                                                     data:  {id: newEvId, title: title, desc: ev_desc, start: ev_start.format(),end: ev_end.format(),allDay:false,operation: "0"},
+                                                    success:    function() {
+                                                         new PNotify({
+                                                                title: 'Event Created',
+                                                                text: calEvent.title+' event sucessfully created!',
+                                                                type: 'success',
+                                                                styling: 'bootstrap3'
+                                                            });
+                                                        },
+                                                      error:function (xhr, ajaxOptions, thrownError){
+                                                     new PNotify({
+                                                        title: 'Create Event Failed',
+                                                        text: xhr.status+"\n"+thrownError+" ",
+                                                        type: 'error',
+                                                        styling: 'bootstrap3'
+                                                    });
+                                                    }  
+                                                    });
+                                                  $('#title').val("");
+                                              }
+                                              
+                                          }                                          
+                                          $('.close').click();
+                                          calendar.fullCalendar('unselect');
+                                          return false;
+                                      });                                                                            
+                                      
                                       
                                   },
-				  eventClick: function(calEvent, jsEvent, view) {
+				  eventClick: function(calEvent) {
+                                        
+                                        var ev_start=moment(calEvent.start);
+                                        var ev_end=moment(calEvent.end);
+                                        
 					$('#fc_edit').click();
-					$('#title2').val(calEvent.title);
+                                        
+					$('#e_title').val(calEvent.title);
+                                        
+                                        
+                                        if(calEvent.allDay){
+                                            $('#e_is-all-day').iCheck('check');
+                                            $('#start-time').val("");
+                                            $('#end-time').val("");
+                                            $('#start-time').attr('disabled','disabled');
+                                            $('#end-time').attr('disabled','disabled');
+                                        }
+                                        else{
+                                            $('#e_start-date').val(ev_start.format("YYYY-MM-DD"));
+                                            $('#e_start-time').val(ev_start.format("hh:mm:ss"));
+                                            $('#e_end-date').val(ev_end.format("YYYY-MM-DD"));
+                                            $('#e_end-time').val(ev_end.format("hh:mm:ss"));
+                                        }
 
-					categoryClass = $("#event_type").val();
+					
 
-					$(".antosubmit2").on("click", function() {
-					  calEvent.title = $("#title2").val();
-
+					$(".e_calsubmit").on("click", function() {
+					  calEvent.title = $("#e_title").val();
+                                          calEvent.start=moment($('#e_start-date').val()+" "+$('#e_start-time').val());
+                                          calEvent.end=moment($('#e_end-date').val()+" "+$('#e_end-time').val());
+                                          
+                                          $('#e_is-all-day').on('isChecked',function(){
+                                              calEvent.allDay=true;
+                                          });
+                                          $('#e_is-all-day').on('isUnchecked',function(){
+                                              calEvent.allDay=false;
+                                          });       
+                                          var request=$.ajax({
+                                              url: "calendar.jsp",
+                                              type: "post",
+                                              data: {id: calEvent.id,title: calEvent.title,desc: "TODO",start: calEvent.start.format(),end: calEvent.end.format(), allDay:calEvent.allDay,operation:"1"},
+                                              success: function(){
+                                               new PNotify({
+                                                    title: 'Event Updated',
+                                                    text: calEvent.title+' event sucessfully updated!',
+                                                    type: 'success',
+                                                    styling: 'bootstrap3'
+                                                });
+                                              },
+                                              error:function (xhr, ajaxOptions, thrownError){
+                                                  new PNotify({
+                                                    title: 'Update Event Failed',
+                                                    text: xhr.status+"\n"+thrownError+" ",
+                                                    type: 'error',
+                                                    styling: 'bootstrap3'
+                                                });
+                                                     
+                                                 }
+                                          });
 					  calendar.fullCalendar('updateEvent', calEvent);
-					  $('.antoclose2').click();
+                                          
+					  $('.close').click();
+                                          
 					});
+                                        
+                                        $('.e_caldelete').on("click",function(){
+                                            
+                                            (new PNotify({
+                                                title: 'Confirmation Needed',
+                                                text: 'Are you sure?',
+                                                icon: 'glyphicon glyphicon-question-sign',
+                                                hide: false,
+                                                styling:'bootstrap3',
+                                                confirm: {
+                                                    confirm: true
+                                                },
+                                                buttons: {
+                                                    closer: false,
+                                                    sticker: false
+                                                },
+                                                history: {
+                                                    history: false
+                                                },
+                                                addclass: 'stack-modal',
+                                                stack: {
+                                                    'dir1': 'down',
+                                                    'dir2': 'right',
+                                                    
+                                                }
+                                            })).get().on('pnotify.confirm', function() {
+                                                    
+                                                    calendar.fullCalendar('removeEvents',calEvent.id);                                            
+                                                    var request=$.ajax({
+                                                       url:"calendar.jsp",
+                                                       type:"POST",
+                                                       data:{id: calEvent.id,operation: "2"},
+                                                       success:function(){
+                                                           new PNotify({
+                                                            title: 'Event Deleted',
+                                                            text: calEvent.title+' event sucessfully deleted!',
+                                                            type: 'success',
+                                                            styling: 'bootstrap3'
+                                                        });
+                                                       },
+                                                       error:function (xhr, ajaxOptions, thrownError){
+                                                             new PNotify({
+                                                            title: 'Delete Event Failed',
+                                                            text: xhr.status+"\n"+thrownError+" ",
+                                                            type: 'error',
+                                                            styling: 'bootstrap3'
+                                                        });
+                                                            }  
+                                                    });
+                                                    calendar.fullCalendar('renderEvents');
+                                            }).on('pnotify.cancel', function() {                                                
+                                            });                                               
+                                        });
+                                        /*$('.e_caldelete').on("click", function(){
+                                            
+                                            if(confirm("Are you sure?")){
+                                            calendar.fullCalendar('removeEvents',calEvent.id);                                            
+                                            var request=$.ajax({
+                                               url:"calendar.jsp",
+                                               type:"POST",
+                                               data:{id: calEvent.id,operation: "2"},
+                                               success:function(){
+                                                   new PNotify({
+                                                    title: 'Event Deleted',
+                                                    text: calEvent.title+' event sucessfully deleted!',
+                                                    type: 'success',
+                                                    styling: 'bootstrap3'
+                                                });
+                                               },
+                                               error:function (xhr, ajaxOptions, thrownError){
+                                                     new PNotify({
+                                                    title: 'Delete Event Failed',
+                                                    text: xhr.status+"\n"+thrownError+" ",
+                                                    type: 'error',
+                                                    styling: 'bootstrap3'
+                                                });
+                                                    }  
+                                            });
+                                            calendar.fullCalendar('renderEvents');
+                                        }
+                                        });*/
 
 					calendar.fullCalendar('unselect');
 				  },
-				  editable: true,
-				  events: []
+				  editable: true,				  
 				});
 				
 			};
@@ -2537,6 +2854,15 @@ if (typeof NProgress != 'undefined') {
 					}
 				  };
 				}();
+                                $('#datatable-employees').dataTable({
+                                    select: true,
+                                    ajax:'employeeDatatableSource.jsp'                                    
+                                });
+                                
+                                $('#datatable-uprojects').dataTable({                                                                        
+                                });
+                                $('#datatable-projects').dataTable({                                                                        
+                                });
 
 				$('#datatable').dataTable();
 
@@ -2965,8 +3291,8 @@ if (typeof NProgress != 'undefined') {
 
 				  echartBar.setOption({
 					title: {
-					  text: 'Graph title',
-					  subtext: 'Graph Sub-text'
+					  text: 'Project Stats',
+					  subtext: ''
 					},
 					tooltip: {
 					  trigger: 'axis'
@@ -2980,15 +3306,15 @@ if (typeof NProgress != 'undefined') {
 					calculable: false,
 					xAxis: [{
 					  type: 'category',
-					  data: ['1?', '2?', '3?', '4?', '5?', '6?', '7?', '8?', '9?', '10?', '11?', '12?']
+					  data: ['Members', 'Content', 'CCU', 'Joins']
 					}],
 					yAxis: [{
 					  type: 'value'
 					}],
 					series: [{
-					  name: 'sales',
+					  name: 'Stats',
 					  type: 'bar',
-					  data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3],
+					  data: [30.0, 12, 10, 2],
 					  markPoint: {
 						data: [{
 						  type: 'max',
@@ -2996,29 +3322,6 @@ if (typeof NProgress != 'undefined') {
 						}, {
 						  type: 'min',
 						  name: '???'
-						}]
-					  },
-					  markLine: {
-						data: [{
-						  type: 'average',
-						  name: '???'
-						}]
-					  }
-					}, {
-					  name: 'purchases',
-					  type: 'bar',
-					  data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
-					  markPoint: {
-						data: [{
-						  name: 'sales',
-						  value: 182.2,
-						  xAxis: 7,
-						  yAxis: 183,
-						}, {
-						  name: 'purchases',
-						  value: 2.3,
-						  xAxis: 11,
-						  yAxis: 3
 						}]
 					  },
 					  markLine: {
